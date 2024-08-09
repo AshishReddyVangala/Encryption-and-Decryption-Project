@@ -1,0 +1,135 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+import java.util.ArrayList;
+
+/**
+ * This program performs encryption and decryption on a given message using a predefined key matrix.
+ *
+ * author: Ashish, Dermot, Abby, Anna, Minahil
+ * 
+ * since 2023-11-07
+ */
+
+public class MainProject {
+
+    // the letters used in encryption and decryption
+    public static String letters = "zabcdefghijklmnopqrstuvwxy";
+
+/**
+     * The main method reads a message from a text file, encrypts and decrypts it, and prints the results.
+     *
+     * @throws FileNotFoundException If the input or output files cannot be found or created.
+     */
+
+    public static void main(String[] args) throws FileNotFoundException {
+        // read the message from the text file
+        Scanner scnr = new Scanner(new File("message.txt"));
+        String message = scnr.next();
+        
+       // encrypt the message
+        encrypt(message);
+        System.out.println();
+       // decrypt the message
+        decrypt();
+        
+        scnr.close();
+    }
+
+     /** 
+     *Ecrypts the given message and writes the result to a file
+     * 
+     * @param message The message to be encrypted
+     * @throws FileNotFounException If the output file cannot be created.
+     */
+    public static void encrypt(String message) throws FileNotFoundException {
+       
+        // prints out the encrypted code into a different file
+        System.out.println("Initial message: " + message);
+        PrintWriter out = new PrintWriter("encrypted_message.txt");
+
+        // create characters to numeric values
+        int[] numberarray = new int[message.length()];
+        
+        for (int i = 0; i < message.length(); i++) {
+            numberarray[i] = (message.charAt(i) - 'a' + 1);
+        }
+        
+        System.out.println();
+        // perform ecryption on pairs of numeric values
+       int[][] encKey = {{3, 2}, {5, 3}};  // Encryption key matrix
+        
+        for (int numArr = 0; numArr < message.length(); numArr++) {
+            numberarray[numArr] = (message.charAt(numArr) - 'a' + 1);
+        }
+        
+        // perform encryption on pairs of numeric values
+        int[] convertednum = new int[message.length()];
+        
+        for (int j = 0; j < convertednum.length; j = j + 2) {
+            convertednum[j] = (((numberarray[j] * encKey[0][0]) + (numberarray[j+1] * encKey[0][1])) % 26);
+            convertednum[j+1] = (((numberarray[j] * encKey[1][0]) + (numberarray[j+1] * encKey[1][1])) % 26);
+        }
+
+        // Convert numeric values back to characters and print the encrypted message
+        char[] encrypted = new char[message.length()];
+        
+        System.out.print("Encrypted Message: ");
+        
+        for (int k = 0; k < encrypted.length; k++) {
+            encrypted[k] = (letters.charAt(convertednum[k]));
+            System.out.print(encrypted[k]);
+            out.print(encrypted[k]);
+        }
+        
+        out.close();
+        
+    }
+
+    /**
+     * Decrypts the encrypted message from a file using a predefined key.
+     *
+     * @throws FileNotFoundException If the input file cannot be found.
+     */
+    public static void decrypt() throws FileNotFoundException {
+        PrintWriter decOut = new PrintWriter("decrypted_message");
+        
+        Scanner scnr = new Scanner(new File("encrypted_message.txt"));
+        String decMessage = scnr.next();
+        // define the decryption key matrix
+        int[][] decKey = {{23,2},{5,23}};
+
+        // convert characters into numeric values 
+        int[] numberarray = new int[decMessage.length()];
+        
+        for (int numArr = 0; numArr < decMessage.length(); numArr++) {
+            numberarray[numArr] = (decMessage.charAt(numArr) - 'a' + 1);
+        }
+        
+        
+        // organize numeric values into pairs for decryption
+        ArrayList<int[]> decArr = new ArrayList<int[]>();
+        
+        int decArrIndex = 0;
+        
+        for(int dec = 0; dec < (decMessage.length()/2); dec++) {
+            int[] tempDec = {numberarray[decArrIndex], numberarray[decArrIndex + 1]};
+            decArr.add(tempDec);
+            decArrIndex += 2;
+        }
+        
+        System.out.println();
+        System.out.print("Decrypted Message: ");
+        // decrypt pairs of numeric values and print the result
+        for(int[] decKeyNum: decArr) {
+            System.out.print(letters.charAt(((decKeyNum[0] * decKey[0][0]) + (decKeyNum[1] * decKey[0][1])) % 26));
+            System.out.print(letters.charAt(((decKeyNum[0] * decKey[1][0]) + (decKeyNum[1] * decKey[1][1])) % 26));
+            decOut.print(letters.charAt(((decKeyNum[0] * decKey[0][0]) + (decKeyNum[1] * decKey[0][1])) % 26));
+            decOut.print(letters.charAt(((decKeyNum[0] * decKey[1][0]) + (decKeyNum[1] * decKey[1][1])) % 26));
+        }
+        
+        decOut.close();
+    }
+    
+}
